@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+const isBcryptHash = (value) => /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(value || '');
+
 /**
  * User Model
  * Stores authentication credentials and role info
@@ -41,6 +43,7 @@ const userSchema = new mongoose.Schema(
 // Hash password before saving
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
+  if (isBcryptHash(this.password)) return;
   this.password = await bcrypt.hash(this.password, 12);
 });
 
